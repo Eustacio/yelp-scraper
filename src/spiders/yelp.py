@@ -41,3 +41,11 @@ class YelpSpider(Spider):
             :param response: the response to parse
         """
         pass
+
+    def _arguments_valid(self) -> bool:
+        """
+        Checks if the required arguments have been properly set via command-line.
+
+        :return: an boolean indicating if all arguments are valid
+        """
+        return self.find and self.near and self.max_results >= 1
