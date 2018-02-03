@@ -13,6 +13,11 @@ class YelpSpider(Spider):
     # The domains that this spider is allowed to crawl
     allowed_domains = ['yelp.com']
 
+    # The URL to make a search on the website, "description" and "location" are
+    # arguments provided by command-line and properly replaced in the
+    # YieldSpider#start_requests method.
+    SEARCH_URL = "https://www.yelp.com/search?find_desc={description}&find_loc={location}"
+
     def __init__(self, find=None, near=None, max_results=3, **kwargs) -> None:
         """
         This method will take any spider arguments and copy them to the spider as attributes.
@@ -28,6 +33,20 @@ class YelpSpider(Spider):
         self.find = find
         self.near = near
         self.max_results = max_results
+
+    def start_requests(self) -> [Request, None]:
+        """
+        This method must return an iterable with the first Requests to crawl for this spider.
+        It is called by Scrapy when the spider is opened for scraping.
+        """
+        if self._arguments_valid():
+            # Returns a Request object when the arguments are valid, so that the response
+            # can be parsed by the YelpSpider#parse method.
+            url = self.SEARCH_URL.format(description=self.find, location=self.near)
+            yield Request(url)
+        else:
+            # TODO: display how to use, required parameters, etc...
+            pass
 
     def parse(self, response: TextResponse) -> [Request, YelpService]:
         """
