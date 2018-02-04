@@ -34,7 +34,7 @@ class YelpSpider(Spider):
         super(YelpSpider, self).__init__(**kwargs)
         self.find = find
         self.near = near
-        self.max_results = max_results
+        self.max_results = int(max_results)
 
     def start_requests(self) -> [Request, None]:
         """

@@ -1,7 +1,8 @@
 """
 Scrapy settings for yelp-scraper project.
 You can find this and more settings consulting the documentation:
-    https://doc.scrapy.org/en/latest/topics/settings.html
+    https://doc.scrapy.org/en/latest/topics/settings.html,
+    https://doc.scrapy.org/en/latest/topics/extensions.html
 """
 
 # The name of the bot implemented by this Scrapy project (also known as the project name).
@@ -20,3 +21,9 @@ COOKIES_ENABLED = False
 
 # A boolean which specifies if the telnet console will be enabled. (enabled by default)
 TELNETCONSOLE_ENABLED = False
+
+# In order to disable an extension you must set its order to None,
+# instead of your order number.
+EXTENSIONS = {
+    "src.extensions.spiderstat.SpiderStat": 1
+}
