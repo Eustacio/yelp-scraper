@@ -1,3 +1,5 @@
+import logging
+
 from scrapy import Spider
 from scrapy.http import TextResponse, Request
 
@@ -92,4 +94,59 @@ class YelpSpider(Spider):
 
         :return: an instance of `YelpService` populated with the data scraped from the response
         """
-        pass
+        return YelpService(name=self._extract_service_name(response),
+                           address=self._extract_service_address(response),
+                           phone=self._extract_service_phone(response))
+
+    def _extract_service_name(self, response: TextResponse) -> str:
+        """
+        Extracts the service name from the response if it can be found, otherwise
+        returns an empty string.
+
+        Args:
+            :param response: the response received from a `Request` object
+
+        :return: the service name if it can be found, otherwise an empty string
+        """
+        name = response.css(".biz-page-title::text").extract_first()
+        if not name:
+            self.log("Cannot find the name of the service: " + response.url, logging.ERROR)
+            return ""
+        else:
+            return name.strip()
+
+    def _extract_service_address(self, response: TextResponse) -> str:
+        """
+        Extracts the service address from the response if it can be found, otherwise
+        returns an empty string.
+
+        Args:
+            :param response: the response received from a `Request` object
+
+        :return: the service address if it can be found, otherwise an empty string
+        """
+        # The address information is formatted by using "<br>" tags, so, we need to extract all
+        # items within the "<address>" tag and merge them at the end separated by commas.
+        address = response.css(".street-address address::text").extract()
+        if not address:
+            self.log("Cannot find the address of the service: " + response.url, logging.ERROR)
+            return ""
+        else:
+            return ', '.join(address).strip()
+
+    def _extract_service_phone(self, response: TextResponse) -> str:
+        """
+        Extracts the service phone from the response if it can be found, otherwise
+        returns an empty string.
+
+        Args:
+            :param response: the response received from a `Request` object
+
+        :return: the service phone if it can be found, otherwise an empty string
+        """
+        phone = response.css(".biz-phone::text").extract_first()
+        if not phone:
+            self.log("Cannot find the phone of the service: " + response.url, logging.ERROR)
+            return ""
+        else:
+            return phone.strip()
