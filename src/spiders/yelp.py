@@ -59,7 +59,21 @@ class YelpSpider(Spider):
         Args:
             :param response: the response to parse
         """
-        pass
+        # Checks if we are in the search result page
+        if response.url.startswith("https://www.yelp.com/search?"):
+            info_page_urls = response.css(".biz-name::attr(href)")
+
+            # Checks if we have some result
+            if info_page_urls is not None:
+                for url in info_page_urls[:self.max_results]:
+                    # Joins the url found with the domain url, and returns a new Request for it,
+                    # that gonna be parsed by this method.
+                    info_page = response.urljoin(url.extract())
+                    yield Request(info_page)
+
+        # We are in the info page, therefore we already can extract the information
+        else:
+            yield self._map_response(response)
 
     def _arguments_valid(self) -> bool:
         """
@@ -68,3 +82,14 @@ class YelpSpider(Spider):
         :return: an boolean indicating if all arguments are valid
         """
         return self.find and self.near and self.max_results >= 1
+
+    def _map_response(self, response: TextResponse) -> YelpService:
+        """
+        Maps a `TextResponse` to a `YelpService` instance.
+
+        Args:
+            :param response: the response received from a `Request` object
+
+        :return: an instance of `YelpService` populated with the data scraped from the response
+        """
+        pass
